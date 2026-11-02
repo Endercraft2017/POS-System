@@ -2,6 +2,10 @@
 
 Baseline: November 2, 2026, Philippine time. Distinguish confirmed requirements from implementation proposals. This document carries the planning baseline into the new repository; prices remain deferred at Kyle's request.
 
+## Release priority: free first
+
+Kyle confirmed on November 2, 2026 that the free tier should be completed and marketed first, with paid capabilities shown as WIP in the webapp. See [Free release scope and readiness](FREE-RELEASE.md) for the feature list, implementation order and launch checks. The existing proposed free core is the delivery target; unresolved account allowances and operational rules are explicitly retained. Paid modules, paid trials and billing are later milestones and do not block the free pilot.
+
 ## Product and audience
 
 - Hosted browser SaaS for small Philippine cafés, with a modern café visual style.
@@ -46,7 +50,7 @@ Suggested AI behavior: visible usage meter, reset each subscription billing mont
 
 ## Current release artifact
 
-The repository currently contains a browser-only **workflow prototype**, not production free or paid plans. Its sample tax-free totals, full refunds, locally stored orders and single sample branch are review simplifications. They do not settle the production fiscal, payment, permission or offline design.
+The repository contains a deployed product website and tenant setup foundation, plus a browser-only **counter workflow prototype**. Neither a complete operational free plan nor a paid subscription is available yet. Sample tax-free totals, full refunds, locally stored orders and the sample branch are review simplifications. They do not settle the production fiscal, payment, permission or offline design. The site and café workspace show planned paid features as WIP; operator-granted fixed-menu publishing remains a development preview.
 
 
 ## Relax deployment direction

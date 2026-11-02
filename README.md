@@ -4,6 +4,8 @@ A hosted café workspace for small Philippine cafés, with a warm green identity
 
 **Stage: public website, tenant foundation and interactive counter demo.** Tenant administration, owner sign-in, café profile/menu setup and menu-page publishing are implemented. The counter still uses browser-local sample data and is **not connected to tenant menus or databases**. Real payments, invoices, operational stock/recipes, employee management, AI, billing and reliable offline synchronization remain to build. Prices remain deferred.
 
+**Release priority: finish the free tier first.** The [free release plan](docs/FREE-RELEASE.md) tracks the full target feature list and current gaps. Paid features appear as WIP previews on the site and café workspace; paid implementation, billing and the trial follow the usable free release.
+
 ![Relax website](docs/assets/relax-landing-desktop.jpg)
 
 ## Routes
@@ -51,6 +53,7 @@ OTOM was reviewed for its separate platform database, database-per-tenant, provi
 
 | Document | Purpose |
 | --- | --- |
+| [Free release](docs/FREE-RELEASE.md) | Free feature list, WIP boundary and release criteria |
 | [Checklist](docs/CHECKLIST.md) | Completed work and remaining gates |
 | [Deployment](docs/DEPLOYMENT.md) | Railway, domain, access and recovery |
 | [Product scope](docs/PRODUCT-SCOPE.md) | Confirmed scope and deferred decisions |
@@ -59,4 +62,4 @@ OTOM was reviewed for its separate platform database, database-per-tenant, provi
 | [Architecture](docs/ARCHITECTURE.md) | Implemented foundation and operational boundaries |
 | [Validation guide](docs/VALIDATION.md) | Café-owner review and pilot gates |
 
-Next: connect the counter to authenticated, branch-scoped transactions and the tenant catalogue, with recipes, stock movements, payment/refund records and offline operation IDs. Keep the demo separate until that work is complete.
+Next: finish free onboarding/catalogue options and connect the counter to authenticated, branch-scoped transactions, with recipes, stock movements, payment/refund records and retry-safe operation IDs. Keep the demo separate until that work is complete. Paid offline synchronization is a later milestone, not a prerequisite for the free pilot.

@@ -23,6 +23,10 @@ Proposed screen boundaries, not a promise that every screen is built. Café bran
 | Plan and trial | Entitlements, trial status and monthly usage | W08 | Spec only |
 | Sync and recovery | Queue, last sync, conflicts and export/recovery | W05 | Spec only |
 
+## Paid WIP presentation
+
+The free release is the first delivery milestone. Show paid website/online orders, offline counter, analytics and the customer assistant in one collapsible **Coming next** panel in the café workspace. Each preview describes the benefit and says **Planned paid feature · WIP**. No activation, purchase, trial timer or implied release date. The public site uses the same copy. Keep unfinished paid tools out of the main working navigation.
+
 ## Shared UI rules
 
 - Keep the active business/branch visible. A single sample branch is not the future data model.

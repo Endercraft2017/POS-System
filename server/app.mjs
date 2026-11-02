@@ -10,6 +10,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const assets = {
   '/assets/site.css': ['web/site.css','text/css'],
   '/assets/workspace.mjs': ['web/workspace.mjs','text/javascript'],
+  '/assets/coming-soon.mjs': ['web/coming-soon.mjs','text/javascript'],
   '/assets/mark.svg': ['web/mark.svg','image/svg+xml'],
   '/assets/counter-preview.jpg': ['docs/assets/counter-preview-desktop.jpg','image/jpeg'],
   '/_demo/': ['prototype/index.html','text/html'],

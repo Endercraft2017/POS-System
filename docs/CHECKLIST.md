@@ -2,6 +2,19 @@
 
 Updated November 2, 2026 (Philippine time). Checked means the named deliverable exists; it does not mean café-owner validation or production readiness. Prices are deferred.
 
+## Current priority: finish the free tier
+
+Kyle confirmed free-first delivery on November 2, 2026. See [Free release scope and readiness](FREE-RELEASE.md). Paid features stay in the roadmap as WIP and do not block the free pilot. The currently deployed setup/demo is not yet the complete free POS.
+
+- [x] Record the free-first release decision and retain the full planned feature list.
+- [x] Show clear paid-feature WIP previews on the product site and café workspace, without activation, payment or trial controls.
+- [ ] Finish free onboarding, catalogue editing, sizes and basic modifiers.
+- [ ] Connect real tenant orders/payments/refunds and retain audit/history with retry-safe operations.
+- [ ] Complete free recipes, ingredient stock, receiving/adjustments, purchases and expenses.
+- [ ] Complete minimal reports/export, customer history, digital transaction copies and simple tasks.
+- [ ] Verify free release readiness, including recovery/backups and live-use requirements, then run a small free pilot.
+- [ ] Open broader free onboarding and market only the verified available features; use demo/early-access messaging before that point.
+
 ## 1. Scope and workflow
 
 - [x] Record the café niche and hosted service direction.
@@ -32,30 +45,30 @@ Updated November 2, 2026 (Philippine time). Checked means the named deliverable 
 - [x] Build operator tenant provisioning, monitoring, publishing and suspension.
 - [x] Build owner profile/menu setup and location creation within granted allowances.
 - [ ] Complete employee accounts, role/branch permissions and seat lifecycle across operational modules.
-- [ ] Design offline operation IDs, durable queue, deduplication and recovery alongside cloud transactions.
+- [ ] Design operation IDs, immutable snapshots and retry deduplication in free cloud transactions; defer the paid device queue and offline recovery implementation.
 - [ ] Implement audited order/payment/refund/stock operations and historical snapshots.
 - [ ] Implement core menu, recipes, inventory, purchases/expenses, customer records and staff tasks.
 - [ ] Implement basic reports and record exports.
 - [x] Test business isolation, reopening persistence, entitlement limits and migration snapshot/rollback locally.
 - [ ] Configure automatic off-site backups and complete Railway restore/failure-recovery drills.
 
-## 4. Paid modules and integration
+## 4. Paid modules and integration — WIP after the free release
 
 - [ ] Implement and validate one prepared offline register per branch.
 - [x] Build a fixed-layout café menu page and paid publishing gate.
 - [ ] Add selectable themes/layouts, promotions and guest ordering.
 - [ ] Implement the bounded paid analytics.
 - [ ] Build saved FAQ and included metered RAG with tenant isolation and handoff.
-- [ ] Implement the 14-day trial and safe entitlement changes.
+- [ ] Implement the 14-day trial and safe entitlement changes when paid capabilities are usable; do not start a trial for WIP features.
 - [ ] Confirm gateway/merchant setup and payment/refund reconciliation.
 - [ ] Prepare and submit Meta review when the required app/demo is ready; Messenger remains WIP.
 
-## 5. Prelaunch and pilot
+## 5. Free prelaunch and pilot
 
 - [x] Adopt Relax and build the green public product website with development/demo status.
 - [ ] Add the early-access signup form and consent workflow.
 - [ ] Test signup, contact permission and source tracking.
-- [ ] Prepare focused posts/video concepts based on the confirmed offer and labeled prototype.
+- [ ] Prepare focused posts/video concepts for the free offer: labeled demo/early access now, verified free capabilities after the pilot.
 - [ ] Publish only when separately instructed.
 - [ ] Recruit café-owner reviewers and 3–5 interested pilot cafés.
 - [ ] Complete live-use invoicing, reliability and privacy requirements.
@@ -82,3 +95,5 @@ Updated November 2, 2026 (Philippine time). Checked means the named deliverable 
 - Browser: Relax landing, operator login and locally seeded café page reviewed at desktop and 390px iframe widths. No horizontal overflow. Operator/owner workflows passed API integration tests; a complete signed-in console browser walkthrough remains pending.
 
 - Railway release verification: build ran all 19 tests and syntax checks; `/api/health` succeeded. One replica is running, zero crashed, volume mounted, and no pending work. DNS/HTTPS verified November 2, 2026: CNAME propagated, domain ownership verified, certificate VALID, homepage HTTP 200 and `/api/health` HTTP 200 with `ok: true`. No certificate-verification bypass was used.
+
+- Free-first presentation update: existing 19 tests and syntax checks pass. Public roadmap reviewed on desktop; product roadmap and the shared workspace disclosure reviewed at 390px frame width (375px content), with no horizontal overflow. Disclosure opens/closes by keyboard. This was a component review, not a signed-in operational POS walkthrough. The free operational modules remain unchecked above.

@@ -46,14 +46,16 @@ The preparation-time deduction rule is proposed for review, superseding the earl
 
 ## Implementation sequence
 
-1. Workflow/specification and prototype delivered; café-owner review pending.
-2. Business, operator/owner identity, branches, memberships, setup audit and entitlements delivered. Next: staff roles, audited transactions, offline operation IDs and sync contract.
-3. Operational counter, menu, basic stock/recipes, records, simple reports/tasks and controlled corrections.
-4. Paid offline register, recovery/sync reliability and the chosen live invoicing/payment arrangements; then limited live pilot.
-5. Paid website and guest ordering, bounded analytics and included metered assistant. Start Meta review preparation as soon as its required working demonstration exists.
-6. Entitlement changes, trial/subscription UX and rollout readiness. Numeric pricing is deferred, not hard-coded into modules.
+Kyle set **free first** as the release priority on November 2, 2026. [The free release checklist](FREE-RELEASE.md) is the delivery reference.
 
-The order within later milestones may change after owner validation. Confirmed paid capabilities remain in the plan; first coding milestones are not a revised free/paid promise.
+1. Workflow/specification and prototype delivered; validate essential payment/preparation/stock rules while completing free onboarding and catalogue options.
+2. Business, operator/owner identity, branches, memberships, setup audit and entitlements delivered. Connect the counter to audited, branch-scoped server transactions with operation IDs and historical snapshots.
+3. Complete the free operational scope: menu/options, recipes, stock, purchases/expenses, minimal reports/export, optional customer records, transaction copies and simple tasks. Resolve the included account allowance without making additional paid seats a launch dependency.
+4. Verify free onboarding and account recovery, tenant isolation, interruption/retry behavior, off-site backups/restore and the chosen live invoicing/payment-recording arrangements. Run a limited free pilot and then broaden free onboarding/marketing.
+5. Build paid modules after the free release: prepared offline register and sync, website themes/guest ordering, bounded analytics and metered customer assistant. Shared branch, snapshot, entitlement and deduplication contracts are designed in the free foundation; working offline synchronization is not a free-pilot gate.
+6. Introduce paid trial/subscription UX when paid capabilities are usable. Prepare Meta review when its required working demonstration exists; it remains WIP and independent of the free launch. Numeric pricing remains deferred.
+
+Paid roadmap previews use one shared, static renderer on the public site and inside a collapsed café-workspace panel. They expose descriptions and WIP status, not purchase/activation controls. Existing development grants do not create subscriptions or start trials.
 
 ## Prototype limitations
 
