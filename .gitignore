@@ -6,3 +6,7 @@ node_modules/
 .qa/
 coverage/
 *.log
+data/
+*.db
+*.db-wal
+*.db-shm

@@ -47,3 +47,8 @@ Suggested AI behavior: visible usage meter, reset each subscription billing mont
 ## Current release artifact
 
 The repository currently contains a browser-only **workflow prototype**, not production free or paid plans. Its sample tax-free totals, full refunds, locally stored orders and single sample branch are review simplifications. They do not settle the production fiscal, payment, permission or offline design.
+
+
+## Relax deployment direction
+
+Kyle confirmed Relax, the green identity, `relax.afkcube.com` as the product website, `/{cafe-slug}` as café pages and `/_console` as the operator console. OTOM is a reference for tenant databases, migrations and administration. The foundation uses path-based tenancy, a platform SQLite database and separate business databases. Owner setup is at `/{slug}/_app`; the counter is still sample-data-only at `/_demo/`. First café menu publishing is implemented with a fixed layout. Selectable themes/layouts and automated online orders remain planned. Prices, paid package caps and AI quotas remain deferred.

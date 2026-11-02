@@ -1,6 +1,16 @@
 # Architecture and implementation boundaries
 
-This is a design contract, not an implemented backend. The prototype is dependency-free HTML/CSS/ES modules with a pure domain module and browser sample persistence. Its state is one demo business/branch. Do not promote browser trust or storage into SaaS authorization.
+Relax now has a Node.js 24 backend, a platform SQLite database, and an isolated SQLite database per tenant on persistent Railway storage. The counter remains a browser-only demo; tenant profiles/catalogues are server records. Operational transactions below remain a design contract until the counter is connected.
+
+## Implemented tenant foundation
+
+The public product site is `/`, published café pages are `/{slug}`, the operator console is `/_console`, and the café owner setup workspace is `/{slug}/_app`. The counter stays at `/_demo/`. Slugs resolve through the platform catalogue; database filenames use generated IDs. There is no default tenant or header-selected tenant.
+
+Operator and owner accounts/sessions are separate. Session tokens are hashed, cookies are HttpOnly and Secure in production, and mutations require an allowed origin and session CSRF token. Passwords use scrypt. Suspension blocks tenant APIs/public publishing and revokes tenant sessions. Tenant text is escaped; no custom HTML or scripts are rendered.
+
+Each tenant starts with one location, owner and membership. Additional locations require explicit grants, with the same owner assigned across locations. Employee invitations, roles beyond owner and seat billing remain to build. Free limits and paid publishing are server enforced. Paid allowances are development grants, not finalized packages.
+
+Versioned migrations run transactionally before readiness, with pre-upgrade snapshots. Missing tenant files and newer schemas fail closed. See [Deployment](DEPLOYMENT.md) for paths and recovery. The implementation adapts the reviewed OTOM platform/tenant split to path-based Relax routing with original code.
 
 ## Foundation for the new service
 
@@ -36,8 +46,8 @@ The preparation-time deduction rule is proposed for review, superseding the earl
 
 ## Implementation sequence
 
-1. Workflow/specification and prototype review (this change).
-2. Business, identity, branches, roles, entitlement interface and audited transaction foundation; define offline operation IDs and sync contract here.
+1. Workflow/specification and prototype delivered; café-owner review pending.
+2. Business, operator/owner identity, branches, memberships, setup audit and entitlements delivered. Next: staff roles, audited transactions, offline operation IDs and sync contract.
 3. Operational counter, menu, basic stock/recipes, records, simple reports/tasks and controlled corrections.
 4. Paid offline register, recovery/sync reliability and the chosen live invoicing/payment arrangements; then limited live pilot.
 5. Paid website and guest ordering, bounded analytics and included metered assistant. Start Meta review preparation as soon as its required working demonstration exists.
@@ -47,6 +57,6 @@ The order within later milestones may change after owner validation. Confirmed p
 
 ## Prototype limitations
 
-LocalStorage is used for convenient sample persistence, not security, multi-user consistency, production offline durability or cloud backups. Use one tab; cross-tab storage events trigger a warning/reload. It does not implement crash-safe distributed transactions. No service worker, live payment gateway, AI calls, real receipts, customer communications or production deployment exists.
+LocalStorage is used for convenient sample persistence, not security, multi-user consistency, production offline durability or cloud backups. Use one tab; cross-tab storage events trigger a warning/reload. It does not implement crash-safe distributed transactions. No service worker, live payment gateway, AI calls, real receipts or customer communications exist. Railway hosts the website, tenant setup and separate demo.
 
-A future browser/PWA client and Railway-hosted service are candidates. Choose the database/framework after the workflow and offline support contract are reviewed, rather than committing a technology stack through this prototype.
+The first hosted foundation uses Node.js and SQLite per business on one Railway instance, following the reviewed OTOM pattern. Scale-out design, connection limits, off-site backups and operational offline behavior remain to validate before a broader pilot.
