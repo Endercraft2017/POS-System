@@ -2,23 +2,23 @@
 
 Direction confirmed by Kyle on November 2, 2026, Philippine time: finish the free tier first, use it to attract café users, and present paid capabilities as WIP inside the app. Paid modules are not dependencies for the free release. Prices remain deferred.
 
-This is the delivery target, not a statement that the free POS is already finished. The product site and tenant setup are deployed; the operational counter is still a sample-data demo.
+The free operational modules are implemented in release 0.3.0. The authenticated café workspace uses persistent tenant records; /_demo/ remains a separate sample demo. Release is a controlled free pilot, not a claim of fiscal accreditation or completed café-owner validation.
 
 ## Free feature list and current readiness
 
 | Area | Free release target | Current state |
 | --- | --- | --- |
-| Hosted café workspace | Browser access, isolated business data, one location | Foundation implemented; complete onboarding/recovery walkthrough pending |
-| Product catalogue | 20 active base products, categories, prices, availability, basic sizes/modifiers/add-ons | Base items, archive/restore and server limit implemented; editing/options remain |
-| Counter and sales tracker | Cart, orders, payment recording, cash change, history, cancellation and refund records | Sample-data demo only; tenant server transactions remain |
-| Basic inventory | Ingredients/base units, starting stock, receiving, consumption, waste/count adjustments, low-stock flags and movement history | Sample balances/consumption only; operational inventory remains |
-| Recipes / BOM | Ingredient quantities for products, sizes and simple add-ons; retain the recipe used for each order | Sample-data demo only; operational recipe editor/ledger remain |
-| Purchases | Received stock quantities/costs with optional supplier/reference | Not implemented |
-| Expenses | Dated amount, category, payment method and note | Not implemented |
-| Minimal reports | Daily sales/payment/refund summary, transaction history and basic export | Sample summary only; server reports/export remain |
-| Customer records | Optional name/contact and purchase history; guest checkout remains available | Not implemented |
-| E-receipt / transaction copy | Private digital customer copy/link with an accurate label and a defined invoicing workflow | Not implemented; fiscal requirements must be resolved before live trading |
-| Notes / tasks | Instructions, due date/time, assignee/team where accounts are available, completion history | Not implemented |
+| Hosted café workspace | Browser access, isolated business data, one location | Operator provisioning, owner workspace, password change and operator recovery implemented |
+| Product catalogue | 20 active base products, categories, prices, availability, basic sizes/modifiers/add-ons | Editing, archive/restore, server limit and basic options implemented |
+| Counter and sales tracker | Cart, orders, payment recording, cash change, history, cancellation and refund records | Persistent counter, payment verification, full refund/cancellation and retry receipts implemented |
+| Basic inventory | Ingredients/base units, starting stock, receiving, consumption, waste/count adjustments, low-stock flags and movement history | Ingredient editor, opening/receiving/waste/count, low-stock flags and movements implemented |
+| Recipes / BOM | Ingredient quantities for products, sizes and simple add-ons; retain the recipe used for each order | Product/size/add-on recipes, frozen sale snapshots and atomic preparation deduction implemented |
+| Purchases | Received stock quantities/costs with optional supplier/reference | Implemented in the owner workspace |
+| Expenses | Dated amount, category, payment method and note | Implemented in the owner workspace |
+| Minimal reports | Daily sales/payment/refund summary, transaction history and basic export | Manila date ranges, payments/refunds/net sales/expenses/purchases and five CSV exports implemented |
+| Customer records | Optional name/contact and purchase history; guest checkout remains available | Implemented in the owner workspace |
+| E-receipt / transaction copy | Private digital customer copy/link with an accurate label and a defined invoicing workflow | Private rotating transaction-copy links implemented; tax invoicing remains an external live-use gate |
+| Notes / tasks | Instructions, due date/time, assignee/team where accounts are available, completion history | Implemented in the owner workspace |
 
 These are the existing proposed free core, now grouped as the free delivery target. Previously explicit decisions remain: one location, 20 active base products, basic modifiers included, basic inventory/recipes free and minimal free reports. The included employee-account allowance is still open; the current foundation creates one owner. Do not advertise additional free staff seats or shared credentials.
 
@@ -42,10 +42,10 @@ Facebook/Messenger remains WIP pending implementation and Meta review, with fina
 
 ## Implementation order
 
-1. Verify owner onboarding and finish the real catalogue: editing, sizes and basic modifiers.
-2. Connect the counter to authenticated branch-scoped orders, payment/refund records, audit and retry-safe operations. Retain historical prices/options/recipes. Confirm pay-first and preparation-time stock rules before freezing operational behavior.
-3. Complete recipes, inventory, receiving and adjustments; then purchases and expenses.
-4. Complete minimal reports/export, optional customer history, private transaction copies and simple tasks.
+1. Completed: operator-assisted onboarding, catalogue editing, sizes and basic modifiers.
+2. Completed: authenticated branch-scoped orders, payment/refund events, audit and durable operation IDs. Prices/options/recipes are frozen per order. Initial pilot rules: payment before preparation; ingredient deduction at preparation; no automatic stock restoration on refund. Validate these defaults with pilot cafés.
+3. Completed: recipes, ingredients, stock movements, purchases and expenses.
+4. Completed: reports/export, optional customer history, private transaction copies and tasks.
 5. Verify the whole free workflow, account recovery, backup restoration, supported devices and the chosen live invoicing/privacy/payment-recording arrangements. Run a small free pilot, then open broader free onboarding.
 6. Build paid capabilities one at a time using pilot feedback. Existing tenant, branch and entitlement boundaries stay in place; paid UI and offline sync do not delay the free pilot.
 
@@ -67,3 +67,15 @@ Before readiness: promote the free entry offer as being built, show the labeled 
 Inside the app, use one collapsible **Coming next** panel with a benefit and **Planned paid feature · WIP** label for each teaser. The product site can show the same roadmap. No dead-end upgrade buttons, paid checkout, automatic trials or invented release dates. Users should reach working free tools first.
 
 Marketing success measures: qualified café signups, completed setup, first recorded sale and repeat use. Paid interest is useful feedback, not evidence that a paid feature exists. Social publishing remains separately instructed.
+
+## Release verification and remaining operational gates
+
+26 automated checks pass, including encrypted snapshot/restore, corrupted-copy rejection, session invalidation, payment/refund day boundaries, cross-branch access and retry deduplication. Desktop browser checks covered real backend checkout/change, preparation/stock, receiving/purchase, product editing, tasks, reports and a private transaction copy using disposable records. The responsive counter fits a 375px content viewport without document overflow. Operator controls were reviewed; provisioning/recovery are integration-tested. Physical device, prolonged outage and multi-register load testing remain pilot work.
+
+Scheduled encrypted snapshots run at startup and every 24 hours, retaining seven copies. The operator can download a recovery bundle; an off-volume copy and a Railway restore drill still need to be established. Local backup is not disaster recovery. See DEPLOYMENT.md.
+
+Free access is operator-provisioned through the console; the public page has an email access-request link. No public registration/consent campaign, real café pilot or actual payment/invoice has been performed by these tests. One owner login is the pilot default, not a newly finalized staff-seat allowance. Tax treatment, required discounts/invoicing and customer-data operating arrangements must be resolved with each pilot before live trading. No statutory-discount automation is implemented.
+
+## Shared agent office
+
+The existing AFK³ agent system hosts separate Relax outreach research, marketing draft and email draft roles. A scoped server credential exposes aggregate tenant status/counts only. All workers can use the same bounded status summary; no customer contacts, transactions, admin passwords or console sessions are shared. Handoffs reuse the existing reviewed ledger. Paid features stay WIP in agent claims. Sending/publishing are separate owner actions, not enabled by creating these workers.

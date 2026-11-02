@@ -92,7 +92,7 @@ test('schema upgrades snapshot existing data and roll back a failing migration',
   const dir=mkdtempSync(join(tmpdir(),'relax-migration-'));t.after(()=>rmSync(dir,{recursive:true,force:true}));
   const file=join(dir,'tenant.db'),db=new DatabaseSync(file),snapshots=join(dir,'backups');t.after(()=>db.close());
   migrate(db,file,tenantMigrations,snapshots);db.prepare('UPDATE profile SET description=? WHERE id=1').run('Keep this data');
-  assert.throws(()=>migrate(db,file,[...tenantMigrations,{version:2,sql:'CREATE TABLE new_table(id INTEGER); INSERT INTO missing_table VALUES(1);'}],snapshots));
-  assert.equal(db.prepare('SELECT description FROM profile').get().description,'Keep this data');assert.equal(db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name='new_table'").get().n,0);assert.equal(db.prepare('SELECT MAX(version) n FROM schema_migrations').get().n,1);
+  assert.throws(()=>migrate(db,file,[...tenantMigrations,{version:tenantMigrations.at(-1).version+1,sql:'CREATE TABLE new_table(id INTEGER); INSERT INTO missing_table VALUES(1);'}],snapshots));
+  assert.equal(db.prepare('SELECT description FROM profile').get().description,'Keep this data');assert.equal(db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name='new_table'").get().n,0);assert.equal(db.prepare('SELECT MAX(version) n FROM schema_migrations').get().n,tenantMigrations.at(-1).version);
   const snapshot=join(snapshots,readdirSync(snapshots)[0]);assert.ok(existsSync(snapshot));const restored=new DatabaseSync(snapshot);assert.equal(restored.prepare('SELECT description FROM profile').get().description,'Keep this data');restored.close();
 });

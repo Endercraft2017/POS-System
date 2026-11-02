@@ -32,6 +32,24 @@ export const tenantMigrations = [{ version: 1, sql: `
   CREATE TABLE audit (id INTEGER PRIMARY KEY, actor TEXT NOT NULL, action TEXT NOT NULL, detail TEXT NOT NULL, at TEXT NOT NULL) STRICT;
 ` }];
 
+tenantMigrations.push({ version: 2, sql: `
+  ALTER TABLE products ADD COLUMN options_json TEXT NOT NULL DEFAULT '{"sizes":[],"addons":[],"modifiers":[],"trackStock":false}';
+  ALTER TABLE products ADD COLUMN recipe_json TEXT NOT NULL DEFAULT '[]';
+  CREATE TABLE operations (id TEXT PRIMARY KEY, actor TEXT NOT NULL, kind TEXT NOT NULL, fingerprint TEXT NOT NULL, response TEXT NOT NULL, at TEXT NOT NULL) STRICT;
+  CREATE TABLE ingredients (id TEXT PRIMARY KEY, name TEXT NOT NULL, unit TEXT NOT NULL CHECK(unit IN ('g','mL','pc')), low_milli INTEGER NOT NULL CHECK(low_milli>=0), unit_cost INTEGER NOT NULL CHECK(unit_cost>=0), created_at TEXT NOT NULL) STRICT;
+  CREATE TABLE stock (branch_id TEXT NOT NULL REFERENCES branches(id), ingredient_id TEXT NOT NULL REFERENCES ingredients(id), quantity_milli INTEGER NOT NULL CHECK(quantity_milli>=0), PRIMARY KEY(branch_id,ingredient_id)) STRICT;
+  CREATE TABLE stock_movements (id TEXT PRIMARY KEY, branch_id TEXT NOT NULL REFERENCES branches(id), ingredient_id TEXT NOT NULL REFERENCES ingredients(id), delta_milli INTEGER NOT NULL, kind TEXT NOT NULL, reason TEXT NOT NULL, source_id TEXT NOT NULL, actor TEXT NOT NULL, at TEXT NOT NULL) STRICT;
+  CREATE INDEX movements_branch_date ON stock_movements(branch_id,at);
+  CREATE TABLE customers (id TEXT PRIMARY KEY, name TEXT NOT NULL, contact TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL) STRICT;
+  CREATE TABLE orders (id TEXT PRIMARY KEY, number INTEGER NOT NULL UNIQUE, branch_id TEXT NOT NULL REFERENCES branches(id), actor TEXT NOT NULL, customer_id TEXT REFERENCES customers(id), customer_name TEXT NOT NULL DEFAULT '', snapshot TEXT NOT NULL, total INTEGER NOT NULL CHECK(total>=0), method TEXT NOT NULL CHECK(method IN ('cash','gcash','maya','bank','card')), cash_tendered INTEGER NOT NULL CHECK(cash_tendered>=0), payment_status TEXT NOT NULL CHECK(payment_status IN ('pending','paid','refunded')), status TEXT NOT NULL CHECK(status IN ('queued','preparing','ready','completed','cancelled')), note TEXT NOT NULL DEFAULT '', receipt_hash TEXT UNIQUE, created_at TEXT NOT NULL, updated_at TEXT NOT NULL) STRICT;
+  CREATE INDEX orders_branch_date ON orders(branch_id,created_at);
+  CREATE TABLE payment_events (id TEXT PRIMARY KEY, order_id TEXT NOT NULL REFERENCES orders(id), branch_id TEXT NOT NULL REFERENCES branches(id), kind TEXT NOT NULL CHECK(kind IN ('payment','refund')), amount INTEGER NOT NULL CHECK(amount>=0), method TEXT NOT NULL, reference TEXT NOT NULL DEFAULT '', reason TEXT NOT NULL DEFAULT '', actor TEXT NOT NULL, at TEXT NOT NULL, UNIQUE(order_id,kind)) STRICT;
+  CREATE INDEX payments_branch_date ON payment_events(branch_id,at);
+  CREATE TABLE purchases (id TEXT PRIMARY KEY, branch_id TEXT NOT NULL REFERENCES branches(id), ingredient_id TEXT NOT NULL REFERENCES ingredients(id), quantity_milli INTEGER NOT NULL CHECK(quantity_milli>0), total_cost INTEGER NOT NULL CHECK(total_cost>=0), supplier TEXT NOT NULL DEFAULT '', reference TEXT NOT NULL DEFAULT '', actor TEXT NOT NULL, at TEXT NOT NULL) STRICT;
+  CREATE TABLE expenses (id TEXT PRIMARY KEY, branch_id TEXT NOT NULL REFERENCES branches(id), amount INTEGER NOT NULL CHECK(amount>0), category TEXT NOT NULL, method TEXT NOT NULL, note TEXT NOT NULL DEFAULT '', business_date TEXT NOT NULL, void_reason TEXT, actor TEXT NOT NULL, at TEXT NOT NULL) STRICT;
+  CREATE TABLE tasks (id TEXT PRIMARY KEY, branch_id TEXT NOT NULL REFERENCES branches(id), title TEXT NOT NULL, instructions TEXT NOT NULL DEFAULT '', assignee TEXT NOT NULL DEFAULT '', due_at TEXT, status TEXT NOT NULL CHECK(status IN ('open','done')), completed_at TEXT, actor TEXT NOT NULL, created_at TEXT NOT NULL) STRICT;
+` });
+
 // Startup owns migrations. Railway pre-deploy containers cannot access the mounted volume.
 // Snapshot the complete live SQLite database, including WAL, before any schema upgrade.
 export function migrate(db, file, migrations, backupDir) {

@@ -4,14 +4,14 @@ Updated November 2, 2026 (Philippine time). Checked means the named deliverable 
 
 ## Current priority: finish the free tier
 
-Kyle confirmed free-first delivery on November 2, 2026. See [Free release scope and readiness](FREE-RELEASE.md). Paid features stay in the roadmap as WIP and do not block the free pilot. The currently deployed setup/demo is not yet the complete free POS.
+Kyle confirmed free-first delivery on November 2, 2026. See [Free release scope and readiness](FREE-RELEASE.md). Paid features stay in the roadmap as WIP and do not block the free pilot. The free operational implementation is complete for controlled pilot evaluation; live-use gates below remain explicit.
 
 - [x] Record the free-first release decision and retain the full planned feature list.
 - [x] Show clear paid-feature WIP previews on the product site and café workspace, without activation, payment or trial controls.
-- [ ] Finish free onboarding, catalogue editing, sizes and basic modifiers.
-- [ ] Connect real tenant orders/payments/refunds and retain audit/history with retry-safe operations.
-- [ ] Complete free recipes, ingredient stock, receiving/adjustments, purchases and expenses.
-- [ ] Complete minimal reports/export, customer history, digital transaction copies and simple tasks.
+- [x] Finish free onboarding, catalogue editing, sizes and basic modifiers.
+- [x] Connect real tenant orders/payments/refunds and retain audit/history with retry-safe operations.
+- [x] Complete free recipes, ingredient stock, receiving/adjustments, purchases and expenses.
+- [x] Complete minimal reports/export, customer history, digital transaction copies and simple tasks.
 - [ ] Verify free release readiness, including recovery/backups and live-use requirements, then run a small free pilot.
 - [ ] Open broader free onboarding and market only the verified available features; use demo/early-access messaging before that point.
 
@@ -45,10 +45,10 @@ Kyle confirmed free-first delivery on November 2, 2026. See [Free release scope 
 - [x] Build operator tenant provisioning, monitoring, publishing and suspension.
 - [x] Build owner profile/menu setup and location creation within granted allowances.
 - [ ] Complete employee accounts, role/branch permissions and seat lifecycle across operational modules.
-- [ ] Design operation IDs, immutable snapshots and retry deduplication in free cloud transactions; defer the paid device queue and offline recovery implementation.
-- [ ] Implement audited order/payment/refund/stock operations and historical snapshots.
-- [ ] Implement core menu, recipes, inventory, purchases/expenses, customer records and staff tasks.
-- [ ] Implement basic reports and record exports.
+- [x] Design operation IDs, immutable snapshots and retry deduplication in free cloud transactions; defer the paid device queue and offline recovery implementation.
+- [x] Implement audited order/payment/refund/stock operations and historical snapshots.
+- [x] Implement core menu, recipes, inventory, purchases/expenses, customer records and staff tasks.
+- [x] Implement basic reports and record exports.
 - [x] Test business isolation, reopening persistence, entitlement limits and migration snapshot/rollback locally.
 - [ ] Configure automatic off-site backups and complete Railway restore/failure-recovery drills.
 
@@ -81,9 +81,9 @@ Kyle confirmed free-first delivery on November 2, 2026. See [Free release scope 
 - [x] Attach `relax.afkcube.com` on port 3000.
 - [x] Merge PR #1 to `main` and verify healthy Railway deployment `0484fcf9-5b34-4c0c-a343-62a8738c39e7` (commit `5576a4b`).
 - [x] Verify the custom domain: Railway confirms DNS propagated, ownership verified and a valid TLS certificate; fresh HTTPS requests succeed.
-- [ ] Connect the counter to branch-scoped server transactions before live trading.
+- [x] Connect the counter to branch-scoped server transactions before live trading.
 
-## Verification log
+## Historical verification log (earlier foundation/demo releases)
 
 - `npm test`: 19 checks pass (14 counter rules and 5 backend integration/storage/migration checks).
 - `npm run check`: JavaScript syntax checks pass.
@@ -97,3 +97,16 @@ Kyle confirmed free-first delivery on November 2, 2026. See [Free release scope 
 - Railway release verification: build ran all 19 tests and syntax checks; `/api/health` succeeded. One replica is running, zero crashed, volume mounted, and no pending work. DNS/HTTPS verified November 2, 2026: CNAME propagated, domain ownership verified, certificate VALID, homepage HTTP 200 and `/api/health` HTTP 200 with `ok: true`. No certificate-verification bypass was used.
 
 - Free-first presentation update: existing 19 tests and syntax checks pass. Public roadmap reviewed on desktop; product roadmap and the shared workspace disclosure reviewed at 390px frame width (375px content), with no horizontal overflow. Disclosure opens/closes by keyboard. This was a component review, not a signed-in operational POS walkthrough. The free operational modules remain unchecked above.
+
+## Free operational release 0.3.0 · November 2, 2026
+
+- [x] 26 automated checks and syntax checks pass; private copies, monitor scoping, restore and retry behavior covered.
+- [x] Desktop owner workflow and responsive 375px content layout reviewed with disposable café records.
+- [x] Add encrypted startup/daily snapshots, seven-copy retention, console download and non-overwriting restore command.
+- [x] Add operator owner-password reset and owner password change with session revocation.
+- [x] Add scoped aggregate monitor endpoint and agent-office link; build three bounded Relax draft workers in the existing agent system.
+- [x] Delegate café visuals: three stations, coffee queue, accessible roster and actual handoff journeys.
+- [ ] Verify an off-volume backup and perform the Railway recovery drill.
+- [ ] Complete café-specific invoicing/discount/privacy arrangements and supervised real-café pilot before broader marketing.
+
+Earlier statements that the counter is only sample data are superseded by this release. The public /_demo/ remains sample-only. No paid subscription, campaign, real email or real café transaction was started.

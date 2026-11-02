@@ -2,7 +2,7 @@
 
 A hosted café workspace for small Philippine cafés, with a warm green identity.
 
-**Stage: public website, tenant foundation and interactive counter demo.** Tenant administration, owner sign-in, café profile/menu setup and menu-page publishing are implemented. The counter still uses browser-local sample data and is **not connected to tenant menus or databases**. Real payments, invoices, operational stock/recipes, employee management, AI, billing and reliable offline synchronization remain to build. Prices remain deferred.
+**Stage: free operational pilot (0.3.0).** The authenticated café workspace now saves orders, payment/refund events, recipes/stock movements, purchases/expenses, customers, tasks, reports and private transaction copies in isolated tenant databases. Paid features remain WIP. Electronic payments are recorded after staff verification through existing café channels; this is not a payment gateway or tax-invoice system.
 
 **Release priority: finish the free tier first.** The [free release plan](docs/FREE-RELEASE.md) tracks the full target feature list and current gaps. Paid features appear as WIP previews on the site and café workspace; paid implementation, billing and the trial follow the usable free release.
 
@@ -14,7 +14,7 @@ A hosted café workspace for small Philippine cafés, with a warm green identity
 | --- | --- |
 | `/` | Public Relax product website |
 | `/{cafe-slug}` | Published café menu page, requiring active tenant and paid website access |
-| `/{cafe-slug}/_app` | Café owner login and setup workspace |
+| `/{cafe-slug}/_app` | Café owner login and free POS workspace |
 | `/_console` | Protected Relax operator console |
 | `/_demo/` | Sample-data counter/order/inventory/summary demo |
 | `/api/health` | Railway readiness check |
@@ -38,9 +38,9 @@ The public site/demo run locally without console credentials. Set `CONSOLE_USERN
 - Responsive green product website and the existing counter demo.
 - Separate operator/owner authentication, scrypt password hashes, hashed session tokens, HttpOnly sessions, origin/CSRF checks and sign-in throttling.
 - Operator console: create tenant, main branch and owner; monitor usage; assign development entitlements; publish/unpublish websites; suspend/reactivate access; view recent audit events.
-- Café workspace: save public profile; create/archive/restore menu items; create locations within granted allowances. One owner can belong to multiple locations.
+- Café workspace: complete free counter, editable menu/options/recipes, inventory/receiving/waste/count, purchases/expenses, reports/CSV, optional customers and due/completed tasks.
 - Server-enforced free allowance: one location and 20 active base menu items. Paid website publishing is gated. Paid allowances are explicit development grants, not finalized commercial packages or subscriptions.
-- Platform SQLite database plus one database per business on a Railway volume. Versioned transactional startup migrations, pre-upgrade snapshots and manual backups.
+- Platform SQLite database plus one database per business on a Railway volume. Versioned transactional startup migrations, pre-upgrade snapshots, encrypted startup/daily backups and a tested restore command.
 - Automated checks cover counter rules and backend integration, including isolation, persistence, entitlement boundaries and migration recovery.
 
 ## Deploy and operate
@@ -62,4 +62,4 @@ OTOM was reviewed for its separate platform database, database-per-tenant, provi
 | [Architecture](docs/ARCHITECTURE.md) | Implemented foundation and operational boundaries |
 | [Validation guide](docs/VALIDATION.md) | Café-owner review and pilot gates |
 
-Next: finish free onboarding/catalogue options and connect the counter to authenticated, branch-scoped transactions, with recipes, stock movements, payment/refund records and retry-safe operation IDs. Keep the demo separate until that work is complete. Paid offline synchronization is a later milestone, not a prerequisite for the free pilot.
+Next: run a supervised café pilot after resolving the café’s invoicing, required discount and customer-data arrangements, and complete an off-volume Railway recovery drill. Paid modules remain separate. The operator console links to the shared agent office; its monitoring credential exposes only aggregate service/tenant counts.

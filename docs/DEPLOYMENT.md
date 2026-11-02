@@ -68,3 +68,13 @@ Operational sales still run only in the browser-local demo. Tenant counter trans
 ## Verified deployment
 
 On November 2, 2026, deployment `0484fcf9-5b34-4c0c-a343-62a8738c39e7` of commit `5576a4b60275fda2989703593c4997a88546fdcb` reached `SUCCESS`. Railway ran all 19 checks, mounted the persistent volume, completed migrations and passed `/api/health`. Environment status reported one running replica and zero crashed replicas. The original failed builds remain in history. Custom DNS and its HTTPS certificate were still pending.
+
+## 0.3.0 operations and recovery
+
+Tenant schema v2 adds the operational records. Startup migrates each registered tenant after the volume is mounted; migration snapshots preserve the previous databases. Keep one Railway replica.
+
+Set BACKUP_KEY to a distinct random secret of at least 32 characters and retain it separately. Encrypted AES-256-GCM recovery sets are generated at startup and every 24 hours under /data/backups/scheduled, retaining seven copies. The authenticated console download creates a consistent fresh snapshot without stopping this single-process server. Store a downloaded copy outside the Railway volume. The UI does not claim off-volume verification. For CLI snapshots, stop other writers before running BACKUP_KEY=… npm run backup -- recovery.relaxbk.
+
+To recover, stop the service, preserve the existing volume, and use BACKUP_KEY=… npm run restore -- recovery.relaxbk /new/data/path. Restore refuses an existing path, authenticates the bundle, checks SQLite integrity/foreign keys and invalidates sessions. Point DATA_DIR at the verified recovered directory before restarting with the original operator credentials. First validate counts, order totals, stock and one retry operation in an isolated environment. Local recovery is tested; a production Railway disaster-recovery drill remains outstanding.
+
+RELAX_MONITOR_TOKEN is a separate least-privilege secret shared only with the existing calculator server. GET /api/integrations/monitor requires its bearer value and returns release/capabilities plus tenant name/slug/plan/status and product/order/location counts. It has no mutation or customer/order-detail access. Configure RELAX_BASE_URL=https://relax.afkcube.com and the matching token on the calculator. Never place these values in browser code, reports or Git.

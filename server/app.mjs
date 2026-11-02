@@ -1,14 +1,19 @@
 import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, timingSafeEqual } from 'node:crypto';
 import { Store, fail, field, transaction } from './store.mjs';
-import { readSession, newSession, verifyPassword, allowLogin, cookie } from './auth.mjs';
-import { landing, workspace, storefront, notFound } from './views.mjs';
+import { readSession, newSession, verifyPassword, allowLogin, cookie, hashPassword, passwordValid, digest } from './auth.mjs';
+import { landing, workspace, storefront, notFound, receipt } from './views.mjs';
+
+import * as ops from './operations.mjs';
+import {backupSchedule} from './backups.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const assets = {
   '/assets/site.css': ['web/site.css','text/css'],
+  '/assets/pos.mjs': ['web/pos.mjs','text/javascript'],
+  '/assets/pos.css': ['web/pos.css','text/css'],
   '/assets/workspace.mjs': ['web/workspace.mjs','text/javascript'],
   '/assets/coming-soon.mjs': ['web/coming-soon.mjs','text/javascript'],
   '/assets/mark.svg': ['web/mark.svg','image/svg+xml'],
@@ -23,7 +28,7 @@ function html(req, res, status, value) { res.writeHead(status, {'Content-Type':'
 async function body(req) {
   if (!(req.headers['content-type'] || '').startsWith('application/json')) fail(415, 'Send JSON.');
   let bytes = 0, chunks = [];
-  for await (const chunk of req) { bytes += chunk.length; if(bytes > 16384) fail(413, 'Request is too large.'); chunks.push(chunk); }
+  for await (const chunk of req) { bytes += chunk.length; if(bytes > 65536) fail(413, 'Request is too large.'); chunks.push(chunk); }
   try { const data = JSON.parse(Buffer.concat(chunks).toString()); if (!data || typeof data !== 'object' || Array.isArray(data)) throw Error(); return data; } catch { fail(400, 'Check the request fields.'); }
 }
 function headers(res, production) {
@@ -53,6 +58,7 @@ export async function createApp(config) {
   if (config.production && (!config.dataDir || !config.origins?.length || !config.consolePassword)) throw new Error('Production needs DATA_DIR, PUBLIC_ORIGIN and console credentials.');
   const store = new Store(config.dataDir || './data');
   try { await store.bootstrap(config.consoleUsername, config.consolePassword); } catch(error) { store.close(); throw error; }
+  const backups=backupSchedule(store,{password:config.backupKey});
   const activeHashes = new Set();
   async function login(req, res, db, cookieName, realm, input, stillActive = () => true) {
     if (typeof input.username !== 'string' || input.username.length > 40 || typeof input.password !== 'string' || Buffer.byteLength(input.password) > 256) fail(400, 'Check your sign-in details.');
@@ -83,7 +89,13 @@ export async function createApp(config) {
       if(write && !originAllowed(req,config)) fail(403,'Request origin is not allowed.');
       const input = write ? await body(req) : null;
       if(path==='/api/health' && req.method==='GET') {
-        store.platform.prepare('SELECT 1').get(); return json(res,200,{ok:true,service:'relax',version:'0.2.0'});
+        store.platform.prepare('SELECT 1').get(); return json(res,200,{ok:true,service:'relax',version:'0.3.0'});
+      }
+      if(path==='/api/integrations/monitor' && req.method==='GET') {
+        const supplied=req.headers.authorization?.replace(/^Bearer /,'')||'';
+        if(!config.monitorToken || Buffer.byteLength(supplied)!==Buffer.byteLength(config.monitorToken) || !timingSafeEqual(Buffer.from(supplied),Buffer.from(config.monitorToken))) fail(401,'Monitoring access required.');
+        const tenants=store.listTenants().map(t=>{const counts=['active','suspended'].includes(t.status)?store.tenant(t.id):null;return{slug:t.slug,name:t.name,plan:t.plan,status:t.status,products:counts?.prepare('SELECT COUNT(*) n FROM products WHERE active=1').get().n??0,orders:counts?.prepare('SELECT COUNT(*) n FROM orders').get().n??0,locations:counts?.prepare('SELECT COUNT(*) n FROM branches').get().n??0};});
+        return json(res,200,{service:'relax',version:'0.3.0',checkedAt:new Date().toISOString(),release:'free-pilot',capabilities:['counter','catalogue','inventory','recipes','purchases','expenses','reports','customers','tasks','transaction-copies'],paidStatus:'wip',tenants});
       }
       if(path.startsWith('/api/console/')) {
         const db=store.platform, name='relax_console', session=readSession(db,req,name), action=path.slice('/api/console/'.length);
@@ -92,15 +104,24 @@ export async function createApp(config) {
         if(write) csrf(req,session);
         if(action==='session' && req.method==='GET') return json(res,200,{username:session.username,role:session.role,csrf:session.csrf});
         if(action==='logout' && req.method==='POST') { db.prepare('DELETE FROM sessions WHERE token_hash=?').run(session.token_hash); res.setHeader('Set-Cookie',cookie(name,'',config.production)); return json(res,200,{ok:true}); }
+        if(action==='backup' && req.method==='GET'){if(!backups.status().enabled)fail(503,'Backup key is not configured.');const data=backups.download();store.audit(session.id,'backup.download',null);res.writeHead(200,{'Content-Type':'application/octet-stream','Content-Disposition':'attachment; filename=relax-backup.relaxbk'});return res.end(data);}
         if(action==='tenants' && req.method==='GET') {
           const tenants=store.listTenants().map(t=>{
             if(!['active','suspended'].includes(t.status)) return {...t,products:0,branches:0,accounts:0};
             const tenantDb=store.tenant(t.id);
             return {...t,products:tenantDb.prepare('SELECT COUNT(*) n FROM products WHERE active=1').get().n,branches:tenantDb.prepare('SELECT COUNT(*) n FROM branches').get().n,accounts:tenantDb.prepare('SELECT COUNT(*) n FROM users').get().n};
           });
-          return json(res,200,{tenants,audit:db.prepare('SELECT action,tenant_id,at FROM audit ORDER BY id DESC LIMIT 12').all()});
+          return json(res,200,{tenants,backup:backups.status(),audit:db.prepare('SELECT action,tenant_id,at FROM audit ORDER BY id DESC LIMIT 12').all()});
         }
         if(action==='tenants' && req.method==='POST') return json(res,201,{tenant:await store.createTenant(input,session.id)});
+        const reset=/^tenants\/([a-z0-9-]+)\/reset$/.exec(action);
+        if(reset && req.method==='POST') {
+          const tenant=store.bySlug(reset[1]);if(!tenant||!['active','suspended'].includes(tenant.status))fail(404,'Café not found.');
+          if(!passwordValid(input.password))fail(400,'Use a unique password of at least 16 characters.');
+          const hash=await hashPassword(input.password),tenantDb=store.tenant(tenant.id),owner=tenantDb.prepare("SELECT id FROM users WHERE role='owner' LIMIT 1").get();
+          transaction(tenantDb,()=>{tenantDb.prepare('UPDATE users SET password_hash=? WHERE id=?').run(hash,owner.id);tenantDb.prepare('DELETE FROM sessions WHERE user_id=?').run(owner.id);ops.audit(tenantDb,'operator','owner.password_reset');});
+          store.audit(session.id,'owner.password_reset',tenant.id);return json(res,200,{ok:true});
+        }
         const update=/^tenants\/([a-z0-9-]+)$/.exec(action);
         if(update && req.method==='PATCH') return json(res,200,{tenant:store.updateTenant(update[1],input,session.id)});
         fail(404,'Endpoint not found.');
@@ -116,7 +137,26 @@ export async function createApp(config) {
         if(action==='session' && req.method==='GET') return json(res,200,{username:session.username,role:session.role,csrf:session.csrf});
         if(action==='logout' && req.method==='POST') { db.prepare('DELETE FROM sessions WHERE token_hash=?').run(session.token_hash);res.setHeader('Set-Cookie',cookie(name,'',config.production));return json(res,200,{ok:true}); }
         if(session.role!=='owner') fail(403,'This workspace setup is limited to the café owner.');
-        if(action==='workspace' && req.method==='GET') return json(res,200,{tenant,profile:db.prepare('SELECT description,address,hours FROM profile WHERE id=1').get(),products:db.prepare('SELECT * FROM products ORDER BY created_at DESC').all(),branches:db.prepare('SELECT b.* FROM branches b JOIN memberships m ON m.branch_id=b.id WHERE m.user_id=?').all(session.id)});
+        if(action==='data' && req.method==='GET') return json(res,200,ops.workspaceData(db,session.id,url.searchParams.get('branch'),url.searchParams.get('from')||undefined,url.searchParams.get('to')||undefined));
+        if(action==='export' && req.method==='GET') {
+          const type=url.searchParams.get('type'),data=ops.records(db,session.id,url.searchParams.get('branch'),url.searchParams.get('from')||undefined,url.searchParams.get('to')||undefined),csv=ops.exportCsv(data,type);
+          res.writeHead(200,{'Content-Type':'text/csv; charset=utf-8','Content-Disposition':`attachment; filename="relax-${type}-${data.range.from}.csv"`});return res.end(csv);
+        }
+        if(action==='password' && req.method==='POST') {
+          if(!passwordValid(input.password)||typeof input.currentPassword!=='string'||Buffer.byteLength(input.currentPassword)>256)fail(400,'Check your current password and use a new password of at least 16 characters.');
+          if(!allowLogin(db,`password:${session.id}`))fail(429,'Too many attempts. Try again later.');
+          const user=db.prepare('SELECT * FROM users WHERE id=?').get(session.id);if(!await verifyPassword(input.currentPassword,user.password_hash))fail(400,'The current password is incorrect.');
+          const hash=await hashPassword(input.password);transaction(db,()=>{db.prepare('UPDATE users SET password_hash=? WHERE id=?').run(hash,session.id);db.prepare('DELETE FROM sessions WHERE user_id=?').run(session.id);ops.audit(db,session.id,'password.changed');});res.setHeader('Set-Cookie',cookie(name,'',config.production));return json(res,200,{ok:true});
+        }
+        if(action==='ingredients' && ['POST','PATCH'].includes(req.method))return json(res,recordId?200:201,ops.saveIngredient(db,session.id,input,recordId));
+        if(action==='stock' && req.method==='POST')return json(res,201,ops.stockChange(db,session.id,input));
+        if(action==='orders' && req.method==='POST')return json(res,recordId?200:201,recordId?ops.orderAction(db,session.id,recordId,input):ops.checkout(db,session.id,input));
+        if(action==='customers' && ['POST','PATCH'].includes(req.method))return json(res,recordId?200:201,ops.customerSave(db,session.id,input,recordId));
+        if(action==='customers' && recordId && req.method==='GET')return json(res,200,{orders:db.prepare('SELECT o.id,o.number,o.total,o.payment_status,o.status,o.created_at FROM orders o JOIN memberships m ON m.branch_id=o.branch_id WHERE m.user_id=? AND o.customer_id=? ORDER BY o.number DESC LIMIT 200').all(session.id,recordId)});
+        if(action==='expenses' && ['POST','PATCH'].includes(req.method))return json(res,recordId?200:201,ops.expenseSave(db,session.id,input,recordId));
+        if(action==='tasks' && ['POST','PATCH'].includes(req.method))return json(res,recordId?200:201,ops.taskSave(db,session.id,input,recordId));
+        if(action==='products' && ['POST','PATCH'].includes(req.method) && input.operationId && typeof input.active!=='boolean')return json(res,recordId?200:201,ops.saveProduct(db,session.id,tenant,input,recordId));
+        if(action==='workspace' && req.method==='GET') return json(res,200,{tenant,profile:db.prepare('SELECT description,address,hours FROM profile WHERE id=1').get(),products:ops.products(db),branches:db.prepare('SELECT b.* FROM branches b JOIN memberships m ON m.branch_id=b.id WHERE m.user_id=?').all(session.id)});
         if(action==='profile' && req.method==='PATCH') {
           const data=input, description=field(data.description,'description',500),address=field(data.address,'address',300),hours=field(data.hours,'opening hours',200);
           transaction(db,()=>{db.prepare('UPDATE profile SET description=?,address=?,hours=? WHERE id=1').run(description,address,hours);tenantAudit(db,session.id,'profile.updated');});
@@ -128,7 +168,7 @@ export async function createApp(config) {
           const id=randomUUID();
           transaction(db,()=>{
             if(db.prepare('SELECT COUNT(*) n FROM products WHERE active=1').get().n>=tenant.product_limit) fail(409,`This café has reached its ${tenant.product_limit} active-item allowance.`);
-            db.prepare('INSERT INTO products VALUES(?,?,?,?,?,?,?)').run(id,name,category,description,data.price,1,new Date().toISOString());
+            db.prepare('INSERT INTO products(id,name,category,description,price,active,created_at) VALUES(?,?,?,?,?,?,?)').run(id,name,category,description,data.price,1,new Date().toISOString());
             tenantAudit(db,session.id,'product.created',{id});
           }); return json(res,201,{id});
         }
@@ -158,11 +198,13 @@ export async function createApp(config) {
       if(path==='/')return html(req,res,200,landing());
       if(path==='/_console' || path==='/_console/')return html(req,res,200,workspace('Operator console'));
       if(path==='/_demo'){res.writeHead(308,{Location:'/_demo/'});return res.end();}
-      if(path==='/robots.txt'){res.writeHead(200,{'Content-Type':'text/plain'});return res.end('User-agent: *\nDisallow: /_console\nDisallow: /api/\nDisallow: /*/_app\nDisallow: /_demo/\n');}
+      if(path==='/robots.txt'){res.writeHead(200,{'Content-Type':'text/plain'});return res.end('User-agent: *\nDisallow: /_console\nDisallow: /api/\nDisallow: /*/_app\nDisallow: /*/_receipt/\nDisallow: /_demo/\n');}
       if(assets[path]){
         const [file,type]=assets[path],content=await readFile(root+file);
         res.writeHead(200,{'Content-Type':`${type}${type.startsWith('text/')?'; charset=utf-8':''}`});return res.end(req.method==='HEAD'?undefined:content);
       }
+      const copy=/^\/([a-z0-9-]+)\/_receipt\/([a-zA-Z0-9_-]{43})$/.exec(path);
+      if(copy){const tenant=store.bySlug(copy[1]);if(tenant?.status==='active'){const db=store.tenant(tenant.id),order=db.prepare('SELECT * FROM orders WHERE receipt_hash=?').get(digest(copy[2]));if(order){res.setHeader('X-Robots-Tag','noindex, nofollow');res.setHeader('Referrer-Policy','no-referrer');return html(req,res,200,receipt(tenant,order));}}return html(req,res,404,notFound());}
       const cafe=/^\/([a-z0-9-]+)(\/|\/_app\/?)?$/.exec(path);
       if(cafe){
         const tenant=store.bySlug(cafe[1]);
@@ -179,5 +221,6 @@ export async function createApp(config) {
     }
   });
   server.requestTimeout=15000;server.headersTimeout=10000;server.maxHeadersCount=50;
-  return {server,store};
+  server.on('close',()=>backups.close());
+  return {server,store,backups};
 }
