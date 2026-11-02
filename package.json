@@ -1,0 +1,14 @@
+{
+  "name": "afk-cafe-pos-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Workflow prototype for a Philippine café POS. Sample data only.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "start": "node scripts/serve.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check prototype/app.mjs && node --check prototype/domain.mjs && node --check scripts/serve.mjs"
+  }
+}
