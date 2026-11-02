@@ -110,3 +110,12 @@ Kyle confirmed free-first delivery on November 2, 2026. See [Free release scope 
 - [ ] Complete café-specific invoicing/discount/privacy arrangements and supervised real-café pilot before broader marketing.
 
 Earlier statements that the counter is only sample data are superseded by this release. The public /_demo/ remains sample-only. No paid subscription, campaign, real email or real café transaction was started.
+
+
+## Fresh recovery verification · November 2, 2026
+
+- [x] Re-run POS tests: 26/26 pass; syntax checks pass.
+- [x] Recover and finish the previously uncommitted café wing and three bounded Relax workers in `Endercraft2017/afk3-commercial-calculator`; 227 agent-system checks pass, including monitoring privacy/failure, all three synthetic worker paths and coordinator handoff linkage. See that repository’s `docs/validation/RELAX_CAFE_RECOVERY_2026-11-02.md` for exact verification scope and deployment follow-up.
+- [x] Add owner monitoring in the shared Manager with aggregate counts only, preserving the separate Relax console session. Variable names are present on both existing Railway services; successful authentication must be verified by the deployed integration.
+- [ ] Real model-output review, browser/device walkthrough, off-volume backup and Railway recovery drill remain open; synthetic tests/native Canvas review do not close them.
+- [ ] Supervised café pilot and live invoicing/discount/privacy arrangements remain open. No external marketing or mail was sent by this recovery.
