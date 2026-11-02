@@ -67,7 +67,7 @@ Updated November 2, 2026 (Philippine time). Checked means the named deliverable 
 - [x] Configure production variables, protected console credentials, persistent `/data` volume and health check.
 - [x] Attach `relax.afkcube.com` on port 3000.
 - [x] Merge PR #1 to `main` and verify healthy Railway deployment `0484fcf9-5b34-4c0c-a343-62a8738c39e7` (commit `5576a4b`).
-- [ ] Add CNAME/TXT at the DNS provider and verify HTTPS.
+- [x] Verify the custom domain: Railway confirms DNS propagated, ownership verified and a valid TLS certificate; fresh HTTPS requests succeed.
 - [ ] Connect the counter to branch-scoped server transactions before live trading.
 
 ## Verification log
@@ -81,4 +81,4 @@ Updated November 2, 2026 (Philippine time). Checked means the named deliverable 
 - The counter is sample-data only. The setup backend persists tenant profiles/catalogues and authenticates operator/owner access. Payments, invoices, AI, cloud transaction sync and automatic off-site backups remain unimplemented. No owner interviews, real payments or operational pilot have occurred.
 - Browser: Relax landing, operator login and locally seeded café page reviewed at desktop and 390px iframe widths. No horizontal overflow. Operator/owner workflows passed API integration tests; a complete signed-in console browser walkthrough remains pending.
 
-- Railway release verification: build ran all 19 tests and syntax checks; `/api/health` succeeded. One replica is running, zero crashed, volume mounted, and no pending work. DNS/HTTPS for the custom hostname remains pending.
+- Railway release verification: build ran all 19 tests and syntax checks; `/api/health` succeeded. One replica is running, zero crashed, volume mounted, and no pending work. DNS/HTTPS verified November 2, 2026: CNAME propagated, domain ownership verified, certificate VALID, homepage HTTP 200 and `/api/health` HTTP 200 with `ok: true`. No certificate-verification bypass was used.
