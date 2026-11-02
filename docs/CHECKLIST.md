@@ -1,6 +1,6 @@
 # Café POS project checklist
 
-Updated November 3, 2026 (Philippine time; November 2 UTC). Checked means the named deliverable exists; it does not mean café-owner validation or production readiness. Prices are deferred.
+Updated November 2, 2026 (Philippine time). Checked means the named deliverable exists; it does not mean café-owner validation or production readiness. Prices are deferred.
 
 ## 1. Scope and workflow
 
@@ -66,7 +66,7 @@ Updated November 3, 2026 (Philippine time; November 2 UTC). Checked means the na
 - [x] Diagnose failure: Railway was building README-only `main`.
 - [x] Configure production variables, protected console credentials, persistent `/data` volume and health check.
 - [x] Attach `relax.afkcube.com` on port 3000.
-- [ ] Publish app code to the deployed branch and verify a healthy release.
+- [x] Merge PR #1 to `main` and verify healthy Railway deployment `0484fcf9-5b34-4c0c-a343-62a8738c39e7` (commit `5576a4b`).
 - [ ] Add CNAME/TXT at the DNS provider and verify HTTPS.
 - [ ] Connect the counter to branch-scoped server transactions before live trading.
 
@@ -80,3 +80,5 @@ Updated November 3, 2026 (Philippine time; November 2 UTC). Checked means the na
 - Storage failure/cross-tab UX is guarded in code, but browser storage exhaustion and concurrency stress tests have not been performed.
 - The counter is sample-data only. The setup backend persists tenant profiles/catalogues and authenticates operator/owner access. Payments, invoices, AI, cloud transaction sync and automatic off-site backups remain unimplemented. No owner interviews, real payments or operational pilot have occurred.
 - Browser: Relax landing, operator login and locally seeded café page reviewed at desktop and 390px iframe widths. No horizontal overflow. Operator/owner workflows passed API integration tests; a complete signed-in console browser walkthrough remains pending.
+
+- Railway release verification: build ran all 19 tests and syntax checks; `/api/health` succeeded. One replica is running, zero crashed, volume mounted, and no pending work. DNS/HTTPS for the custom hostname remains pending.

@@ -6,7 +6,7 @@
 - Service: `POS-System` (`cc73bb69-f3e2-4774-b62b-54cf4b2b6f52`)
 - Environment: `production` (`84cdd7fa-3a42-49ce-b310-07351eb3c805`)
 - Volume: `relax-data`, mounted at `/data`.
-- Source: `Endercraft2017/POS-System`, `main` after the foundation PR is merged.
+- Source: `Endercraft2017/POS-System`, `main`; foundation PR #1 merged.
 - One instance. Do not scale this SQLite deployment to multiple replicas or attach an empty replacement volume.
 
 The original failure was a build failure: Railway watched `main`, which contained only `README.md`. The application was on the PR branch. Railpack could not identify an app to build.
@@ -64,3 +64,7 @@ To restore: stop the app, preserve the current volume contents, restore matching
 `npm run check` and `npm test` must pass. Railway must reach `SUCCESS` and `/api/health` must return `ok: true`. Check `/`, `/_demo/`, `/_console` and an approved café flow; keep test businesses out of production. Domain DNS/certificate readiness is separate from deployment health.
 
 Operational sales still run only in the browser-local demo. Tenant counter transactions, staff management, sizes/recipes, receipts, payments, trial/billing, AI, online orders, selectable website themes, automatic off-site backups and paid offline sync remain incomplete. Prices and paid package limits are deferred.
+
+## Verified deployment
+
+On November 2, 2026, deployment `0484fcf9-5b34-4c0c-a343-62a8738c39e7` of commit `5576a4b60275fda2989703593c4997a88546fdcb` reached `SUCCESS`. Railway ran all 19 checks, mounted the persistent volume, completed migrations and passed `/api/health`. Environment status reported one running replica and zero crashed replicas. The original failed builds remain in history. Custom DNS and its HTTPS certificate were still pending.
